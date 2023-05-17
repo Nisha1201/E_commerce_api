@@ -27,32 +27,33 @@
 #         })
 
 
-from rest_framework import generics
-from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import UserSerializer, UserLoginSerializer
-from .models import CustomUser
+from rest_framework import generics, status
 from rest_framework.response import Response
+# from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.tokens import RefreshToken
+from .serializers import UserSerializer, LoginSerializer
+from .models import CustomUser
 
 class UserRegisterView(generics.CreateAPIView):
+    # permission_classes = [AllowAny]
     serializer_class = UserSerializer
 
 class UserLoginView(generics.GenericAPIView):
-    serializer_class = UserLoginSerializer
-    print(serializer_class,"oooooooooooooooooooooooooooooooooooooooooo")
+    # permission_classes = [AllowAny]
+    serializer_class = LoginSerializer
 
     def post(self, request, *args, **kwargs):
-        print(request.data,"nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
         serializer = self.get_serializer(data=request.data)
-        print(serializer,"ttttttttttttttttttttttttttttttttttt")
+        # serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-
-        user =  CustomUser.objects.get(username=serializer.validated_data['username'])
-        print(user,"rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr")
-        refresh = RefreshToken.for_user(user)
-        print(refresh,"jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj")
+        username = CustomUser.objects.get(username=serializer.validated_data['username'])
+        print(username,"jjjjjjjjjjjjjjjjjjjjjjjjj")
+        print(type(username),"llllllllllllllllllllllllll")
+        refresh = RefreshToken.for_user(username)
+        print(refresh,"ooooooooooooooooooooooooooooooooo")
 
         return Response({
-            'refresh': str(refresh),
+            'refresh': str(refresh)
+,
             'access': str(refresh.access_token),
-        })
-
+        }, status=status.HTTP_200_OK)

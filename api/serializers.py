@@ -1,43 +1,28 @@
+# from rest_framework import serializers
+# from django.contrib.auth.password_validation import validate_password
+# from .models import CustomUser
+
+# class UserSerializer(serializers.ModelSerializer):
+#     password = serializers.CharField(write_only=True, validators=[validate_password])
+
+#     class Meta:
+#         model = CustomUser
+#         fields = ('username', 'password')
+
+
 from rest_framework import serializers
+from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
-from api.models import CustomUser
+
+User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, validators=[validate_password])
+
+    class Meta:
+        model = User
+        fields = ('username', 'password', 'first_name', 'last_name', 'phone', 'address')
+
+class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
-    password = serializers.CharField(write_only=True)
-    phone=serializers.IntegerField()
-    address=serializers.CharField()
-    class Meta:
-        model = CustomUser
-        fields = ('username', 'password','phone','address','first_name','last_name',)
-    
-
-
-from rest_framework import serializers
-from django.contrib.auth.password_validation import validate_password
-from api.models import CustomUser
-
-class UserLoginSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-    allowed_methods = ['POST']
-    class Meta:
-        model = CustomUser
-        fields = ('username', 'password')
-
-    def validate(self, attrs):
-        username = attrs.get('username')
-        print(username,"oooooooooooooooo")
-        password = attrs.get('password')
-
-        if username and password:
-            user =  CustomUser.objects.get(username=['username'])
-        #     if user:
-        #         if not user.check_password(password):
-        #             raise serializers.ValidationError('Incorrect password')
-        #     else:
-        #         raise serializers.ValidationError('User not found')
-        # else:
-        #     raise serializers.ValidationError('Both username and password are required')
-
-        attrs['user'] = user                    
-        return attrs
+    password = serializers.CharField()
